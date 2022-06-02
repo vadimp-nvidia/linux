@@ -77,6 +77,7 @@
  * @pdata: device platform data;
  * @irq_work: interrupts work item;
  * @irq: IRQ line number;
+ * @status: status to indicate chip reset or in-service update;
  */
 struct mlxsw_i2c {
 	struct {
@@ -93,6 +94,7 @@ struct mlxsw_i2c {
 	struct mlxreg_core_hotplug_platform_data *pdata;
 	struct work_struct irq_work;
 	int irq;
+	u8 status;
 };
 
 #define MLXSW_I2C_READ_MSG(_client, _addr_buf, _buf, _len) {	\
@@ -237,6 +239,19 @@ static int mlxsw_i2c_write_cmd(struct i2c_client *client,
 		return -EIO;
 
 	return 0;
+}
+
+static bool
+mlxsw_i2c_cmd_status_verify(struct device *dev, struct mlxsw_i2c *mlxsw_i2c,
+			    u8 status)
+{
+	if (status == MLXSW_CMD_STATUS_FW_ISSU ||
+	    status == MLXSW_CMD_STATUS_RUNNING_RESET) {
+		mlxsw_i2c->status = status;
+		dev_info(dev, "FW status=%x(%s)): Access to device is not allowed in this state\n", status, mlxsw_cmd_status_str(status));
+		return true;
+	}
+	return false;
 }
 
 /* Routine posts initialization command to ASIC through mail box. */
@@ -422,6 +437,10 @@ mlxsw_i2c_cmd(struct device *dev, u16 opcode, u32 in_mod, size_t in_mbox_size,
 
 	WARN_ON(in_mbox_size % sizeof(u32) || out_mbox_size % sizeof(u32));
 
+	/* Do not run transaction if chip is in reset or in-service update state. */
+	if (mlxsw_i2c->status)
+		return 0;
+
 	if (in_mbox) {
 		reg_size = mlxsw_i2c_get_reg_size(in_mbox);
 		num = DIV_ROUND_UP(reg_size, mlxsw_i2c->block_size);
@@ -494,6 +513,8 @@ mlxsw_i2c_cmd(struct device *dev, u16 opcode, u32 in_mod, size_t in_mbox_size,
 
 cmd_fail:
 	mutex_unlock(&mlxsw_i2c->cmd.lock);
+	if (mlxsw_i2c_cmd_status_verify(&client->dev, mlxsw_i2c, *status))
+		err = 0;
 	return err;
 }
 
@@ -685,14 +706,16 @@ static int mlxsw_i2c_probe(struct i2c_client *client,
 	/* Wait until go bit is cleared. */
 	err = mlxsw_i2c_wait_go_bit(client, mlxsw_i2c, &status);
 	if (err) {
-		dev_err(&client->dev, "HW semaphore is not released");
+		if (!mlxsw_i2c_cmd_status_verify(&client->dev, mlxsw_i2c, status))
+			dev_err(&client->dev, "HW semaphore is not released");
 		goto errout;
 	}
 
 	/* Validate transaction completion status. */
 	if (status) {
-		dev_err(&client->dev, "Bad transaction completion status %x\n",
-			status);
+		if (!mlxsw_i2c_cmd_status_verify(&client->dev, mlxsw_i2c, status))
+			dev_err(&client->dev, "Bad transaction completion status %x\n",
+				status);
 		err = -EIO;
 		goto errout;
 	}
