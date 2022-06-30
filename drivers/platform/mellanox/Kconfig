@@ -95,6 +95,8 @@ config MLXBF_PTM
 		to userspace with information related to power and thermal
 		management of the Bluefield device.
 
+source "drivers/platform/mellanox/mlxbf_pka/Kconfig"
+
 config NVSW_SN2201
 	tristate "Nvidia SN2201 platform driver support"
 	depends on HWMON
