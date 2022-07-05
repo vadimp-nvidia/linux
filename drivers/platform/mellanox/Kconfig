@@ -78,6 +78,13 @@ config MLXBF_PMC
 	  to performance monitoring counters within various blocks in the
 	  Mellanox BlueField SoC via a sysfs interface.
 
+config MLXBF_TRIO
+	tristate "Mellanox TRIO driver"
+	depends on ARM64
+	help
+	 This driver supports the TRIO PCIe root complex interface on
+	 Mellanox BlueField SoCs.
+
 config NVSW_SN2201
 	tristate "Nvidia SN2201 platform driver support"
 	depends on HWMON
