@@ -111,6 +111,21 @@ config ICP10100
 	  To compile this driver as a module, choose M here: the module
 	  will be called icp10100.
 
+config ICP201XX
+        tristate "InvenSense ICP-201xx pressure and temperature sensor"
+        depends on (I2C || SPI_MASTER)
+        select IIO_BUFFER
+        select IIO_TRIGGERED_BUFFER
+        select CRC32
+	select ICP201XX_I2C
+        help
+	  Say yes here to build support for the Invensense ICP201XX
+
+config ICP201XX_I2C
+	tristate
+	depends on ICP201XX
+	depends on I2C
+
 config MPL115
 	tristate
 
