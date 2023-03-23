@@ -7568,6 +7568,12 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	/* systems with ASPM and others may see the checksum fail on the first
 	 * attempt. Let's give it a few tries
 	 */
+	/* NVIDIA >>>
+	 * NVM checksum is reported as bad in many cases after full
+	 * BIOS SPI flash including GbE section burn by Dediprog.
+	 * This happened in the early steps of production flow before
+	 * EEPROM / NVM info will be customized and the checksum will
+	 * be recalculated. Just skip this check.
 	for (i = 0;; i++) {
 		if (e1000_validate_nvm_checksum(&adapter->hw) >= 0)
 			break;
@@ -7577,6 +7583,8 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 			goto err_eeprom;
 		}
 	}
+	 * NVIDIA <<<
+	 */
 
 	e1000_eeprom_checks(adapter);
 
