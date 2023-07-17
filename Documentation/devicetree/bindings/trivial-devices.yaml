@@ -145,6 +145,8 @@ properties:
           - infineon,tlv493d-a1b6
             # Infineon Multi-phase Digital VR Controller xdpe11280
           - infineon,xdpe11280
+            # Infineon Multi-phase Digital VR Controller xdpe1a2g7
+            - infineon,xdpe1a2g7
             # Infineon Multi-phase Digital VR Controller xdpe12254
           - infineon,xdpe12254
             # Infineon Multi-phase Digital VR Controller xdpe12284
