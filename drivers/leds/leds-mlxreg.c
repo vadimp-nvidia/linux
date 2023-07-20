@@ -19,7 +19,6 @@
 #define MLXREG_LED_IS_OFF		0x00 /* Off */
 #define MLXREG_LED_RED_SOLID		0x05 /* Solid red */
 #define MLXREG_LED_GREEN_SOLID		0x0D /* Solid green */
-#define MLXREG_LED_AMBER_SOLID		0x09 /* Solid amber */
 #define MLXREG_LED_BLINK_3HZ		167 /* ~167 msec off/on - HW support */
 #define MLXREG_LED_BLINK_6HZ		83 /* ~83 msec off/on - HW support */
 #define MLXREG_LED_CAPABILITY_CLEAR	GENMASK(31, 8) /* Clear mask */
@@ -224,13 +223,10 @@ static int mlxreg_led_config(struct mlxreg_led_priv_data *priv)
 		}
 		led_cdev = &led_data->led_cdev;
 		led_data->data_parent = priv;
-		if (strstr(data->label, "red") ||
-		    strstr(data->label, "orange")) {
+		if (strstr(data->label, "red") || strstr(data->label, "orange") ||
+		    strstr(data->label, "amber")) {
 			brightness = LED_OFF;
 			led_data->base_color = MLXREG_LED_RED_SOLID;
-		} else if (strstr(data->label, "amber")) {
-			brightness = LED_OFF;
-			led_data->base_color = MLXREG_LED_AMBER_SOLID;
 		} else {
 			brightness = LED_OFF;
 			led_data->base_color = MLXREG_LED_GREEN_SOLID;
