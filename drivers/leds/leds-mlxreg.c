@@ -206,16 +206,22 @@ static int mlxreg_led_config(struct mlxreg_led_priv_data *priv)
 				dev_err(&priv->pdev->dev, "Failed to query capability register\n");
 				return err;
 			}
-			if (!(regval & data->bit))
+			/*
+			 * If slot is specified - validate if slot is equipped on system.
+			 * In case slot is specified in platform data, capability register
+			 * comtains the counter of untits.
+			 */
+			if (data->slot && data->slot > regval)
+				continue;
+			else if (!(regval & data->bit))
 				continue;
 			/*
 			 * Field "bit" can contain one capability bit in 0 byte
 			 * and offset bit in 1-3 bytes. Clear capability bit and
-			 * keep only offset bit.
+			 * contains the counter of units.
 			 */
 			data->bit &= MLXREG_LED_CAPABILITY_CLEAR;
 		}
-
 		led_cdev = &led_data->led_cdev;
 		led_data->data_parent = priv;
 		if (strstr(data->label, "red") ||
