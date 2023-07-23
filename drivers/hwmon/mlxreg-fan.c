@@ -390,7 +390,7 @@ static int mlxreg_fan_connect_verify(struct mlxreg_fan *fan,
 		return err;
 	}
 
-	return !!(regval & data->bit);
+	return data->slot ? (data->slot <= regval ? 1 : 0) : !!(regval & data->bit);
 }
 
 static int mlxreg_pwm_connect_verify(struct mlxreg_fan *fan,
@@ -527,7 +527,15 @@ static int mlxreg_fan_config(struct mlxreg_fan *fan,
 			return err;
 		}
 
-		drwr_avail = hweight32(regval);
+		/*
+		 * The number of drawers could be specified in registers by counters for newer
+		 * systems, or by bitmasks for older systems. In case the data is provided by
+		 * counter, it is indicated through 'version' field.
+		 */
+		if (pdata->version)
+			drwr_avail = regval;
+		else
+			drwr_avail = hweight32(regval);
 		if (!tacho_avail || !drwr_avail || tacho_avail < drwr_avail) {
 			dev_err(fan->dev, "Configuration is invalid: drawers num %d tachos num %d\n",
 				drwr_avail, tacho_avail);
