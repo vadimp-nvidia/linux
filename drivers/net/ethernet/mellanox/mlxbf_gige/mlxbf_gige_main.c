@@ -18,6 +18,7 @@
 
 #include "mlxbf_gige.h"
 #include "mlxbf_gige_regs.h"
+#include "mlxbf_gige_uphy.h"
 
 /* Allocate SKB whose payload pointer aligns with the Bluefield
  * hardware DMA limitation, i.e. DMA operation can't cross
@@ -365,12 +366,17 @@ static int mlxbf_gige_probe(struct platform_device *pdev)
 	void __iomem *plu_base;
 	void __iomem *base;
 	int addr, phy_irq;
+	u64 soc_version;
 	u64 control;
 	int err;
 
 	base = devm_platform_ioremap_resource(pdev, MLXBF_GIGE_RES_MAC);
 	if (IS_ERR(base))
 		return PTR_ERR(base);
+
+	soc_version = readq(base + MLXBF_GIGE_VERSION);
+	if (soc_version > MLXBF_GIGE_VERSION_BF3)
+		return -ENODEV;
 
 	llu_base = devm_platform_ioremap_resource(pdev, MLXBF_GIGE_RES_LLU);
 	if (IS_ERR(llu_base))
@@ -411,6 +417,14 @@ static int mlxbf_gige_probe(struct platform_device *pdev)
 	priv->base = base;
 	priv->llu_base = llu_base;
 	priv->plu_base = plu_base;
+	priv->hw_version = soc_version;
+
+
+	if (priv->hw_version == MLXBF_GIGE_VERSION_BF3) {
+		err = mlxbf_gige_config_uphy(priv);
+		if (err)
+			return err;
+	}
 
 	priv->rx_q_entries = MLXBF_GIGE_DEFAULT_RXQ_SZ;
 	priv->tx_q_entries = MLXBF_GIGE_DEFAULT_TXQ_SZ;
