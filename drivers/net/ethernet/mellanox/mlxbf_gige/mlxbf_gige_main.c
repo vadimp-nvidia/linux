@@ -205,8 +205,8 @@ static int mlxbf_gige_stop(struct net_device *netdev)
 	return 0;
 }
 
-static int mlxbf_gige_eth_ioctl(struct net_device *netdev,
-			       struct ifreq *ifr, int cmd)
+static int mlxbf_gige_do_ioctl(struct net_device *netdev,
+				struct ifreq *ifr, int cmd)
 {
 	if (!(netif_running(netdev)))
 		return -EINVAL;
@@ -259,7 +259,7 @@ static const struct net_device_ops mlxbf_gige_netdev_ops = {
 	.ndo_start_xmit		= mlxbf_gige_start_xmit,
 	.ndo_set_mac_address	= eth_mac_addr,
 	.ndo_validate_addr	= eth_validate_addr,
-	.ndo_eth_ioctl		= mlxbf_gige_eth_ioctl,
+	.ndo_do_ioctl		= mlxbf_gige_do_ioctl,
 	.ndo_set_rx_mode        = mlxbf_gige_set_rx_mode,
 	.ndo_get_stats64        = mlxbf_gige_get_stats64,
 };
@@ -275,10 +275,12 @@ static void mlxbf_gige_bf3_adjust_link(struct net_device *netdev)
 {
 	struct mlxbf_gige *priv = netdev_priv(netdev);
 	struct phy_device *phydev = netdev->phydev;
+	unsigned long flags;
 	u8 sgmii_mode;
 	u16 ipg_size;
 	u32 val;
 
+	spin_lock_irqsave(&priv->lock, flags);
 	if (phydev->link && phydev->speed != priv->prev_speed) {
 		switch (phydev->speed) {
 		case 1000:
@@ -294,6 +296,7 @@ static void mlxbf_gige_bf3_adjust_link(struct net_device *netdev)
 			sgmii_mode = MLXBF_GIGE_10M_SGMII_MODE;
 			break;
 		default:
+			spin_unlock_irqrestore(&priv->lock, flags);
 			return;
 		}
 
@@ -310,6 +313,7 @@ static void mlxbf_gige_bf3_adjust_link(struct net_device *netdev)
 
 		priv->prev_speed = phydev->speed;
 	}
+	spin_unlock_irqrestore(&priv->lock, flags);
 
 	phy_print_status(phydev);
 }
@@ -397,7 +401,6 @@ static int mlxbf_gige_probe(struct platform_device *pdev)
 
 	SET_NETDEV_DEV(netdev, &pdev->dev);
 	netdev->netdev_ops = &mlxbf_gige_netdev_ops;
-	netdev->ethtool_ops = &mlxbf_gige_ethtool_ops;
 	priv = netdev_priv(netdev);
 	priv->netdev = netdev;
 
@@ -419,11 +422,13 @@ static int mlxbf_gige_probe(struct platform_device *pdev)
 	priv->plu_base = plu_base;
 	priv->hw_version = soc_version;
 
-
 	if (priv->hw_version == MLXBF_GIGE_VERSION_BF3) {
+		netdev->ethtool_ops = &mlxbf_gige_bf3_ethtool_ops;
 		err = mlxbf_gige_config_uphy(priv);
 		if (err)
 			return err;
+	} else {
+		netdev->ethtool_ops = &mlxbf_gige_bf2_ethtool_ops;
 	}
 
 	priv->rx_q_entries = MLXBF_GIGE_DEFAULT_RXQ_SZ;
