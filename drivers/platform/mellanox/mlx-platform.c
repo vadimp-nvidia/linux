@@ -19,6 +19,7 @@
 #include <linux/platform_data/mlxreg.h>
 #include <linux/reboot.h>
 #include <linux/regmap.h>
+#include <linux/spi/spi.h>
 
 #define MLX_PLAT_DEVICE_NAME		"mlxplat"
 
@@ -3312,6 +3313,16 @@ struct mlxreg_core_hotplug_platform_data mlxplat_mlxcpld_l1_switch_data = {
 	.mask = MLXPLAT_CPLD_AGGR_MASK_NG_DEF | MLXPLAT_CPLD_AGGR_MASK_COMEX,
 	.cell_low = MLXPLAT_CPLD_LPC_REG_AGGRLO_OFFSET,
 	.mask_low = MLXPLAT_CPLD_LOW_AGGR_MASK_LOW | MLXPLAT_CPLD_LOW_AGGR_MASK_PWR_BUT,
+};
+
+static struct spi_board_info rack_switch_switch_spi_board_info[] = {
+	{
+		.modalias       = "spidev",
+		.irq            = -1,
+		.max_speed_hz   = 20000000,
+		.bus_num        = 0,
+		.chip_select    = 0,
+	},
 };
 
 /* Platform led default data */
@@ -7464,6 +7475,7 @@ static struct mlxreg_core_platform_data
 	*mlxplat_wd_data[MLXPLAT_CPLD_WD_MAX_DEVS];
 static struct mlxreg_core_data *mlxplat_dpu_data[MLXPLAT_CPLD_DPU_MAX_DEVS];
 static const struct regmap_config *mlxplat_regmap_config;
+static struct spi_board_info *mlxplat_spi;
 static struct pci_dev *lpc_bridge;
 static struct pci_dev *i2c_bridge;
 static struct pci_dev *jtag_bridge;
@@ -7786,6 +7798,7 @@ static int __init mlxplat_dmi_rack_switch_matched(const struct dmi_system_id *dm
 		mlxplat_wd_data[i] = &mlxplat_mlxcpld_wd_set_type2[i];
 	mlxplat_i2c = &mlxplat_mlxcpld_i2c_ng_data;
 	mlxplat_regmap_config = &mlxplat_mlxcpld_regmap_config_rack_switch;
+	mlxplat_spi = rack_switch_switch_spi_board_info;
 
 	return mlxplat_register_platform_device();
 }
@@ -7830,6 +7843,7 @@ static int __init mlxplat_dmi_l1_switch_matched(const struct dmi_system_id *dmi)
 	mlxplat_regmap_config = &mlxplat_mlxcpld_regmap_config_rack_switch;
 	pm_power_off = mlxplat_poweroff;
 	mlxplat_reboot_nb = &mlxplat_reboot_default_nb;
+	mlxplat_spi = rack_switch_switch_spi_board_info;
 
 	return mlxplat_register_platform_device();
 }
@@ -8382,6 +8396,9 @@ static int mlxplat_post_init(struct mlxplat_priv *priv)
 			goto fail_platform_fan_register;
 		}
 	}
+
+	if (mlxplat_spi)
+		spi_register_board_info(mlxplat_spi, 1);
 
 	/* Add WD drivers. */
 	err = mlxplat_mlxcpld_check_wd_capability(priv->regmap);
