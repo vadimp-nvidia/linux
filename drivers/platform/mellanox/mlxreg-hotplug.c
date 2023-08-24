@@ -274,7 +274,22 @@ static int mlxreg_hotplug_attr_init(struct mlxreg_hotplug_priv_data *priv)
 			if (ret)
 				return ret;
 
-			item->mask = GENMASK((regval & item->mask) - 1, 0);
+			if (!regval)
+				continue;
+
+			/*
+			 * The 'regval' contains a bitmask or count of attributes to be handled.
+			 * When the 'capability' register is configured, for 'item' it specifies the
+			 * total number of elements. All registers are 8 bits wide. If the number of
+			 * attributes exceeds 8 bits, they are distributed across multiple hotplug
+			 * register sets. The 'capability' register provides the total count across
+			 * all sets.
+			 * Example for 20 attributes:
+			 * - Set 1: attributes 1-8.
+			 * - Set 2: attributes 9-16.
+			 * - Set 3: attributes 17-20.
+			 */
+			item->mask = GENMASK(((regval % 8) & item->mask) - 1, 0);
 		}
 
 		data = item->data;
@@ -294,7 +309,15 @@ static int mlxreg_hotplug_attr_init(struct mlxreg_hotplug_priv_data *priv)
 				if (ret)
 					return ret;
 
-				if (!(regval & data->bit)) {
+				/*
+				 * In case slot field is provided, capability register contains
+				 * counter, otherwise bitmask. Skip non-relevant entries if slot
+				 * is set and exceeds counter. Othewise validate entry by matching
+				 * bitmask.
+				 */
+				if (data->slot > regval)
+					break;
+				if (!(regval & data->bit) && !data->slot) {
 					data++;
 					continue;
 				}
@@ -611,7 +634,7 @@ static int mlxreg_hotplug_set_irq(struct mlxreg_hotplug_priv_data *priv)
 				if (ret)
 					goto out;
 
-				if (!(regval & data->bit))
+				if (!(regval & data->bit) && !data->slot)
 					item->mask &= ~BIT(j);
 			}
 		}
