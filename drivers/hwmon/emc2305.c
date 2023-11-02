@@ -19,7 +19,11 @@ emc2305_normal_i2c[] = { 0x27, 0x2c, 0x2d, 0x2e, 0x2f, 0x4c, 0x4d, I2C_CLIENT_EN
 #define EMC2305_REG_VENDOR		0xfe
 #define EMC2305_FAN_MAX			0xff
 #define EMC2305_FAN_MIN			0x00
+#ifdef CONFIG_MLXSW_CORE_THERMAL
 #define EMC2305_FAN_MAX_STATE		10
+#else
+#define EMC2305_FAN_MAX_STATE		255
+#endif
 #define EMC2305_DEVICE			0x34
 #define EMC2305_VENDOR			0x5d
 #define EMC2305_REG_PRODUCT_ID		0xfd
