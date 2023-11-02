@@ -15,10 +15,15 @@
 #define MLXREG_FAN_MAX_TACHO		24
 #define MLXREG_FAN_MAX_PWM		4
 #define MLXREG_FAN_PWM_NOT_CONNECTED	0xff
-#define MLXREG_FAN_MAX_STATE		10
+#ifdef CONFIG_MLXSW_CORE_THERMAL
+#define MLXREG_FAN_MAX_STATE            10
+#define MLXREG_FAN_SPEED_MIN_LEVEL      2       /* 20 percent */
+#else
+#define MLXREG_FAN_MAX_STATE            255
+#define MLXREG_FAN_SPEED_MIN_LEVEL      51       /* 20 percent */
+#endif
 #define MLXREG_FAN_MIN_DUTY		51	/* 20% */
 #define MLXREG_FAN_MAX_DUTY		255	/* 100% */
-#define MLXREG_FAN_SPEED_MIN_LEVEL		2	/* 20 percent */
 #define MLXREG_FAN_TACHO_SAMPLES_PER_PULSE_DEF	44
 #define MLXREG_FAN_TACHO_DIV_MIN		283
 #define MLXREG_FAN_TACHO_DIV_DEF		(MLXREG_FAN_TACHO_DIV_MIN * 4)
