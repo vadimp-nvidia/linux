@@ -21,8 +21,13 @@
 #define MLXSW_THERMAL_ASIC_TEMP_HOT	105000	/* 105C */
 #define MLXSW_THERMAL_HYSTERESIS_TEMP	5000	/* 5C */
 #define MLXSW_THERMAL_MODULE_TEMP_SHIFT	(MLXSW_THERMAL_HYSTERESIS_TEMP * 2)
+#ifdef CONFIG_MLXSW_CORE_THERMAL
 #define MLXSW_THERMAL_MAX_STATE	10
 #define MLXSW_THERMAL_MIN_STATE	2
+#else
+#define MLXSW_THERMAL_MAX_STATE	255
+#define MLXSW_THERMAL_MIN_STATE	51	/* 20 percent */
+#endif
 #define MLXSW_THERMAL_MAX_DUTY	255
 
 /* External cooling devices, allowed for binding to mlxsw thermal zones. */
