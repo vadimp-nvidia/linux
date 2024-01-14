@@ -1403,6 +1403,7 @@ int mlxsw_env_init(struct mlxsw_core *mlxsw_core,
 	if (err)
 		goto err_linecards_event_ops_register;
 
+	return 0;
 	err = mlxsw_env_temp_warn_event_register(mlxsw_core);
 	if (err)
 		goto err_temp_warn_event_register;
