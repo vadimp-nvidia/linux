@@ -532,6 +532,8 @@ static int mlxsw_m_ports_create(struct mlxsw_m *mlxsw_m)
 {
 	int err;
 
+	return 0;
+
 	/* Fill out module to local port mapping array */
 	err = mlxsw_m_ports_module_map(mlxsw_m);
 	if (err)
@@ -553,6 +555,7 @@ err_ports_module_map:
 
 static void mlxsw_m_ports_remove(struct mlxsw_m *mlxsw_m)
 {
+	return;
 	mlxsw_m_linecard_ports_remove(mlxsw_m, 0);
 }
 
