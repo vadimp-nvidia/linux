@@ -8,6 +8,7 @@
 #include <linux/hwmon.h>
 #include <linux/err.h>
 #include <linux/sfp.h>
+#include <linux/dmi.h>
 
 #include "core.h"
 #include "core_env.h"
@@ -26,12 +27,16 @@
 				MLXSW_HWMON_GEARBOXES_MAX_COUNT * MLXSW_HWMON_ATTR_PER_GEARBOX + \
 				MLXSW_MFCR_TACHOS_MAX + MLXSW_MFCR_PWMS_MAX)
 
+#define MLXSW_HWMON_HI157_MODULE_NUM 18
+
 struct mlxsw_hwmon_attr {
 	struct device_attribute dev_attr;
 	struct mlxsw_hwmon_dev *mlxsw_hwmon_dev;
 	unsigned int type_index;
 	char name[32];
 };
+
+static int mlxsw_hwmon_module_num = 0;
 
 static int mlxsw_hwmon_get_attr_index(int index, int count)
 {
@@ -698,6 +703,13 @@ static int mlxsw_hwmon_module_init(struct mlxsw_hwmon_dev *mlxsw_hwmon_dev)
 	mlxsw_reg_mgpir_unpack(mgpir_pl, NULL, NULL, NULL,
 			       &module_sensor_max, NULL);
 
+	if (mlxsw_hwmon_module_num) {
+		if (!strcmp(dev_name(mlxsw_hwmon->bus_info->dev), "2-0048"))
+			module_sensor_max = mlxsw_hwmon_module_num;
+		else
+			module_sensor_max = mlxsw_hwmon_module_num + 1;
+	}
+
 	/* Add extra attributes for module temperature. Sensor index is
 	 * assigned to sensor_count value, while all indexed before
 	 * sensor_count are already utilized by the sensors connected through
@@ -853,6 +865,25 @@ static struct mlxsw_linecards_event_ops mlxsw_hwmon_event_ops = {
 	.got_inactive = mlxsw_hwmon_got_inactive,
 };
 
+static int mlxsw_dmi_hi157_matched(const struct dmi_system_id *dmi)
+{
+	mlxsw_hwmon_module_num = MLXSW_HWMON_HI157_MODULE_NUM;
+
+	return 1;
+}
+
+static const struct dmi_system_id mlxsw_hwmon_dmi_table[]  = {
+	{
+		.callback = mlxsw_dmi_hi157_matched,
+		.matches = {
+			DMI_MATCH(DMI_BOARD_NAME, "VMOD0018"),
+			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "HI157"),
+		},
+	},
+	{ }
+};
+MODULE_DEVICE_TABLE(dmi, mlxsw_hwmon_dmi_table);
+
 int mlxsw_hwmon_init(struct mlxsw_core *mlxsw_core,
 		     const struct mlxsw_bus_info *mlxsw_bus_info,
 		     struct mlxsw_hwmon **p_hwmon)
@@ -862,6 +893,8 @@ int mlxsw_hwmon_init(struct mlxsw_core *mlxsw_core,
 	struct device *hwmon_dev;
 	u8 num_of_slots;
 	int err;
+
+	dmi_check_system(mlxsw_hwmon_dmi_table);
 
 	mlxsw_reg_mgpir_pack(mgpir_pl, 0);
 	err = mlxsw_reg_query(mlxsw_core, MLXSW_REG(mgpir), mgpir_pl);
