@@ -102,15 +102,24 @@ config MLXBF_PMC
 	  to performance monitoring counters within various blocks in the
 	  Mellanox BlueField SoC via a sysfs interface.
 
-config MLXBF_PTM
-	tristate "BlueField Power and Thermal Management debugfs interface"
-	depends on ARM64
-	depends on DEBUG_FS
+config NVSW_BMC_HID162
+	tristate "Nvidia BMC CPLD/FPGA Hardware Control and Monitoring"
+	depends on REGMAP_I2C && OF && REGMAP && HWMON
 	help
-		If you say yes to this option, support will added for the
-		mlxbf-ptm driver.  This driver provides debugfs interface
-		to userspace with information related to power and thermal
-		management of the Bluefield device.
+	 Say Y here to include support for the FPGA/CPLD logic by Baseboard
+	 Management Controller equipped on Nvidia switches.
+	  This driver can also be built as a module. If so the module
+	  will be called nvsw-bmc-hid162.
+
+config NVSW_HOST_L1
+	tristate "Nvidia host CPLD/FPGA Hardware Control and Monitoring"
+	depends on HWMON
+	select REGMAP_I2C
+	help
+	 Say Y here to include support for the FPGA/CPLD logic by host CPU
+	 equipped on Nvidia switches.
+	  This driver can also be built as a module. If so the module
+	  will be called nvsw-host-l1.
 
 config NVSW_SN2201
 	tristate "Nvidia SN2201 platform driver support"
