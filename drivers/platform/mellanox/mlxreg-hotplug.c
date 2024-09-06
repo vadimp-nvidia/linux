@@ -354,15 +354,28 @@ mlxreg_hotplug_work_helper(struct mlxreg_hotplug_priv_data *priv,
 	if (ret)
 		goto out;
 
-	/* Read status. */
-	ret = regmap_read(priv->regmap, item->reg, &regval);
-	if (ret)
-		goto out;
+	if (item->non_sticky) {
+		/* Read event. */
+		ret = regmap_read(priv->regmap, item->reg +
+				   MLXREG_HOTPLUG_EVENT_OFF, &regval);
+		if (ret)
+			goto out;
 
-	/* Set asserted bits and save last status. */
-	regval &= item->mask;
-	asserted = item->cache ^ regval;
-	item->cache = regval;
+		/* Set asserted bits. */
+		regval &= item->mask;
+		asserted = regval;
+	} else {
+		/* Read status. */
+		ret = regmap_read(priv->regmap, item->reg, &regval);
+		if (ret)
+			goto out;
+
+		/* Set asserted bits and save last status. */
+		regval &= item->mask;
+		asserted = item->cache ^ regval;
+		item->cache = regval;
+	}
+
 	for_each_set_bit(bit, &asserted, 8) {
 		int pos;
 
