@@ -167,6 +167,7 @@ struct mlxreg_core_data {
  * @ind: element's index inside the group;
  * @inversed: if 0: 0 for signal status is OK, if 1 - 1 is OK;
  * @health: true if device has health indication, false in other case;
+ * @non_sticky: 1 - indicates that signal bit is changed to the previous value after acknowledging;
  */
 struct mlxreg_core_item {
 	struct mlxreg_core_data *data;
@@ -180,6 +181,7 @@ struct mlxreg_core_item {
 	u8 ind;
 	u8 inversed;
 	u8 health;
+	u8 non_sticky;
 };
 
 /**
