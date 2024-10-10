@@ -1173,7 +1173,7 @@ static ssize_t pmbus_set_sensor(struct device *dev,
 	if (ret < 0)
 		rv = ret;
 	else
-		sensor->data = -ENODATA;
+		sensor->data = regval;
 	mutex_unlock(&data->update_lock);
 	return rv;
 }
