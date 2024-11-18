@@ -3255,7 +3255,7 @@ int mlxsw_cmd_exec(struct mlxsw_core *mlxsw_core, u16 opcode, u8 opcode_mod,
 		   char *in_mbox, size_t in_mbox_size,
 		   char *out_mbox, size_t out_mbox_size)
 {
-	u8 status;
+	u8 status = 0;
 	int err;
 
 	BUG_ON(in_mbox_size % sizeof(u32) || out_mbox_size % sizeof(u32));
