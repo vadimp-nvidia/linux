@@ -133,6 +133,9 @@ struct mlxreg_hotplug_device {
  * @regnum: number of registers occupied by multi-register attribute;
  * @slot: slot number, at which device is located;
  * @secured: if set indicates that entry access is secured;
+ * @wmark_low_cntr: interrupt storm counter;
+ * @wmark_low_ts: interrupt storm low bound timestamp;
+ * @wmark_high_ts: interrupt storm high bound timestamp;
  */
 struct mlxreg_core_data {
 	char label[MLXREG_CORE_LABEL_MAX_SIZE];
@@ -155,6 +158,9 @@ struct mlxreg_core_data {
 	u8 regnum;
 	u8 slot;
 	u8 secured;
+	unsigned int wmark_low_cntr;
+	unsigned long wmark_low_ts;
+	unsigned long wmark_high_ts;
 };
 
 /**
@@ -173,6 +179,7 @@ struct mlxreg_core_data {
  * @ind: element's index inside the group;
  * @inversed: if 0: 0 for signal status is OK, if 1 - 1 is OK;
  * @health: true if device has health indication, false in other case;
+ * @storming_bits: interrupt storming bits mask;
  */
 struct mlxreg_core_item {
 	struct mlxreg_core_data *data;
@@ -188,6 +195,7 @@ struct mlxreg_core_item {
 	u8 ind;
 	u8 inversed;
 	u8 health;
+	u32 storming_bits;
 };
 
 /**
