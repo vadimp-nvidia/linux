@@ -169,7 +169,7 @@ struct mlxreg_core_data {
  * @capability_bit: started bit in attribute capability register;
  * @capability_mask: mask in attribute capability register;
  * @cache: last status value for elements fro the same group;
- * @count: number of available elements in the group;
+ * @item_count: number of available elements in the group;
  * @ind: element's index inside the group;
  * @inversed: if 0: 0 for signal status is OK, if 1 - 1 is OK;
  * @health: true if device has health indication, false in other case;
@@ -184,7 +184,7 @@ struct mlxreg_core_item {
 	u32 capability_bit;
 	u32 capability_mask;
 	u32 cache;
-	u8 count;
+	u8 item_count;
 	u8 ind;
 	u8 inversed;
 	u8 health;

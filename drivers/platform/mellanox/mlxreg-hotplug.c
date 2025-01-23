@@ -288,7 +288,7 @@ static int mlxreg_hotplug_attr_init(struct mlxreg_hotplug_priv_data *priv)
 		/* Go over all unmasked units within item. */
 		mask = item->mask;
 		k = 0;
-		count = item->ind ? item->ind : item->count;
+		count = item->ind ? item->ind : item->item_count;
 		for_each_set_bit(j, &mask, count) {
 			if (data->capability) {
 				/*
@@ -425,7 +425,7 @@ mlxreg_hotplug_health_work_helper(struct mlxreg_hotplug_priv_data *priv,
 	u32 regval;
 	int i, ret = 0;
 
-	for (i = 0; i < item->count; i++, data++) {
+	for (i = 0; i < item->item_count; i++, data++) {
 		/* Mask event. */
 		ret = regmap_write(priv->regmap, data->reg +
 				   MLXREG_HOTPLUG_MASK_OFF, 0);
@@ -620,7 +620,7 @@ static int mlxreg_hotplug_set_irq(struct mlxreg_hotplug_priv_data *priv)
 		 * interrupt capability for some of components.
 		 */
 		data = item->data;
-		for (j = 0; j < item->count; j++, data++) {
+		for (j = 0; j < item->item_count; j++, data++) {
 			/* Verify if the attribute has capability register. */
 			if (data->capability) {
 				/* Read capability register. */
@@ -702,7 +702,7 @@ static void mlxreg_hotplug_unset_irq(struct mlxreg_hotplug_priv_data *priv)
 			     MLXREG_HOTPLUG_EVENT_OFF, 0);
 
 		/* Remove all the attached devices in group. */
-		count = item->count;
+		count = item->item_count;
 		for (j = 0; j < count; j++, data++)
 			mlxreg_hotplug_device_destroy(priv, data, item->kind);
 	}
