@@ -7846,7 +7846,7 @@ static int mlxplat_platdevs_init(struct mlxplat_priv *priv)
 	return 0;
 
 fail_platform_dpu_register:
-	while (--i)
+	while (i--)
 		platform_device_unregister(priv->pdev_dpu[i]);
 fail_platform_wd_register:
 	while (i--)
