@@ -132,6 +132,8 @@ struct mlxreg_hotplug_device {
  * @regnum: number of registers occupied by multi-register attribute;
  * @slot: slot number, at which device is located;
  * @secured: if set indicates that entry access is secured;
+ * @handle: parent handle;
+ * @completion_notify: callback to notify when platform driver probing is done;
  */
 struct mlxreg_core_data {
 	char label[MLXREG_CORE_LABEL_MAX_SIZE];
@@ -153,6 +155,8 @@ struct mlxreg_core_data {
 	u8 regnum;
 	u8 slot;
 	u8 secured;
+	void *handle;
+	int (*completion_notify)(void *handle, int id);
 };
 
 /**
