@@ -2098,6 +2098,8 @@ static struct mlxreg_core_data mlxplat_mlxcpld_modular_pwr_items_data[] = {
 	},
 };
 
+#define MLXPLAT_SMART_SWITCH_SLOT_TO_MASK(s)   (GENMASK((s) * 2 - 1, (s) * 2 - 2))
+
 
 static
 struct mlxreg_core_hotplug_platform_data mlxplat_mlxcpld_lc_act = {
@@ -3234,6 +3236,23 @@ static struct mlxreg_core_item mlxplat_mlxcpld_smart_switch_items[] = {
 	},
 };
 
+static int mlxplat_dpu_completion_notify(void *handle, int id)
+{
+       u32 regval, mask;
+       int err;
+
+       if (id <= 0 || id > 4)
+               return -EINVAL;
+
+       err = regmap_read(handle, MLXPLAT_CPLD_LPC_REG_AGGRCX_MASK_OFFSET, &regval);
+       if (err)
+               return err;
+
+       mask = MLXPLAT_SMART_SWITCH_SLOT_TO_MASK(id);
+
+       return regmap_write(handle, MLXPLAT_CPLD_LPC_REG_AGGRCX_MASK_OFFSET, regval | mask);
+}
+
 static
 struct mlxreg_core_hotplug_platform_data mlxplat_mlxcpld_smart_switch_data = {
 	.items = mlxplat_mlxcpld_smart_switch_items,
@@ -3271,24 +3290,28 @@ static struct mlxreg_core_data mlxplat_mlxcpld_smart_switch_dpu_data[] = {
 		.hpdev.brdinfo = &mlxplat_mlxcpld_smart_switch_dpu_devs[0],
 		.hpdev.nr = MLXPLAT_CPLD_NR_DPU_BASE,
 		.slot = 1,
+		.completion_notify = mlxplat_dpu_completion_notify,
 	},
 	{
 		.label = "dpu2",
 		.hpdev.brdinfo = &mlxplat_mlxcpld_smart_switch_dpu_devs[1],
 		.hpdev.nr = MLXPLAT_CPLD_NR_DPU_BASE + 1,
 		.slot = 2,
+		.completion_notify = mlxplat_dpu_completion_notify,
 	},
 	{
 		.label = "dpu3",
 		.hpdev.brdinfo = &mlxplat_mlxcpld_smart_switch_dpu_devs[2],
 		.hpdev.nr = MLXPLAT_CPLD_NR_DPU_BASE + 2,
 		.slot = 3,
+		.completion_notify = mlxplat_dpu_completion_notify,
 	},
 	{
 		.label = "dpu4",
-		.hpdev.brdinfo = &mlxplat_mlxcpld_smart_switch_dpu_devs[2],
+		.hpdev.brdinfo = &mlxplat_mlxcpld_smart_switch_dpu_devs[3],
 		.hpdev.nr = MLXPLAT_CPLD_NR_DPU_BASE + 3,
 		.slot = 4,
+		.completion_notify = mlxplat_dpu_completion_notify,
 	},
 };
 
@@ -7699,8 +7722,6 @@ static const struct reg_default mlxplat_mlxcpld_regmap_smart_switch[] = {
 	{ MLXPLAT_CPLD_LPC_REG_WD1_ACT_OFFSET, 0x00 },
 	{ MLXPLAT_CPLD_LPC_REG_WD2_ACT_OFFSET, 0x00 },
 	{ MLXPLAT_CPLD_LPC_REG_WD3_ACT_OFFSET, 0x00 },
-	{ MLXPLAT_CPLD_LPC_REG_AGGRCX_MASK_OFFSET,
-	  MLXPLAT_CPLD_LPC_SM_SW_MASK },
 };
 
 struct mlxplat_mlxcpld_regmap_context {
@@ -8990,6 +9011,7 @@ static int mlxplat_post_init(struct mlxplat_priv *priv)
 	/* Add DPU drivers. */
 	for (j = 0; j < MLXPLAT_CPLD_DPU_MAX_DEVS; j++) {
 		if (mlxplat_dpu_data[j]) {
+			mlxplat_dpu_data[j]->handle = priv->regmap;
 			priv->pdev_dpu[j] =
 				platform_device_register_resndata(&mlxplat_dev->dev, "mlxreg-dpu",
 								  j, NULL, 0, mlxplat_dpu_data[j],
