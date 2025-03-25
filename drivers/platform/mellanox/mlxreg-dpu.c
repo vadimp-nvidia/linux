@@ -581,6 +581,14 @@ static int mlxreg_dpu_probe(struct platform_device *pdev)
 	if (err)
 		goto mlxreg_dpu_config_init_fail;
 
+	err = data->completion_notify(data->handle, data->slot);
+	if (err)
+		goto mlxreg_dpu_completion_notify_fail;
+
+	return err;
+
+mlxreg_dpu_completion_notify_fail:
+	mlxreg_dpu_config_exit(mlxreg_dpu);
 mlxreg_dpu_config_init_fail:
 regcache_sync_fail:
 devm_regmap_init_i2c_fail:
