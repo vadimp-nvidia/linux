@@ -136,6 +136,8 @@ struct mlxreg_hotplug_device {
  * @wmark_low_cntr: interrupt storm counter;
  * @wmark_low_ts: interrupt storm low bound timestamp;
  * @wmark_high_ts: interrupt storm high bound timestamp;
+ * @handle: parent handle;
+ * @completion_notify: callback to notify when platform driver probing is done;
  */
 struct mlxreg_core_data {
 	char label[MLXREG_CORE_LABEL_MAX_SIZE];
@@ -161,6 +163,8 @@ struct mlxreg_core_data {
 	unsigned int wmark_low_cntr;
 	unsigned long wmark_low_ts;
 	unsigned long wmark_high_ts;
+	void *handle;
+	int (*completion_notify)(void *handle, int id);
 };
 
 /**
