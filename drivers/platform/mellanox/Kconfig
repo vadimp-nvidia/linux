@@ -128,4 +128,23 @@ config NVSW_SN2201
 	  C3338R which is one of the Denverton product families.
 	  System equipped with Nvidia®Spectrum-1 32x100GbE Ethernet switch.
 
+config NVSW_BMC_HID162
+	tristate "Nvidia BMC CPLD/FPGA Hardware Control and Monitoring"
+	depends on REGMAP_I2C && OF && REGMAP && HWMON
+	help
+	 Say Y here to include support for the FPGA/CPLD logic by Baseboard
+	 Management Controller equipped on Nvidia switches.
+	 This driver can also be built as a module. If so the module
+	 will be called nvsw-bmc-hid162.
+
+config NVSW_HOST_L1
+	tristate "Nvidia host CPLD/FPGA Hardware Control and Monitoring"
+	depends on HWMON
+	select REGMAP_I2C
+	help
+	 Say Y here to include support for the FPGA/CPLD logic by host CPU
+	 equipped on Nvidia switches.
+	 This driver can also be built as a module. If so the module
+	 will be called nvsw-host-l1.
+
 endif # MELLANOX_PLATFORM
