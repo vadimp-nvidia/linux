@@ -33,6 +33,7 @@
 #define MP2975_MFR_READ_VREF_R2		0xa3
 #define MP2975_MFR_OVP_TH_SET		0xe5
 #define MP2975_MFR_UVP_SET		0xe6
+#define MP2975_CLEAR_CAT_FAULTS 	0xfd
 
 #define MP2975_VOUT_FORMAT		BIT(15)
 #define MP2975_VID_STEP_SEL_R1		BIT(4)
@@ -659,6 +660,28 @@ mp2975_vout_per_rail_config_get(struct i2c_client *client,
 	return 0;
 }
 
+static int
+mp2975_clear_interrupts(struct i2c_client *client,
+			struct mp2975_data *data)
+{
+	int i = 0;
+	int ret = 0;
+
+	for (i = 0; i < data->info.pages; i++) {
+		ret = i2c_smbus_write_byte_data(client, PMBUS_PAGE, i);
+		if (ret < 0)
+			return ret;
+		ret = i2c_smbus_write_byte_data(client, PMBUS_CLEAR_FAULTS, 0);
+		if (ret < 0)
+			return ret;
+		ret = i2c_smbus_write_byte_data(client, MP2975_CLEAR_CAT_FAULTS, 0);
+		if (ret < 0)
+			return ret;
+	}
+
+	return ret;
+}
+
 static struct pmbus_driver_info mp2975_info = {
 	.pages = 1,
 	.format[PSC_VOLTAGE_IN] = linear,
@@ -733,6 +756,11 @@ static int mp2975_probe(struct i2c_client *client)
 
 	/* Obtain offsets, maximum and format for vout. */
 	ret = mp2975_vout_per_rail_config_get(client, data, info);
+	if (ret)
+		return ret;
+
+	/* Clear interrupts. */
+	ret = mp2975_clear_interrupts(client, data);
 	if (ret)
 		return ret;
 
