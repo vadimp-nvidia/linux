@@ -8186,6 +8186,7 @@ static int __init mlxplat_dmi_comex_matched(const struct dmi_system_id *dmi)
 static int __init mlxplat_dmi_ng400_matched(const struct dmi_system_id *dmi)
 {
 	int i;
+	const char *sku;
 
 	mlxplat_max_adap_num = MLXPLAT_CPLD_MAX_PHYS_ADAPTER_NUM;
 	mlxplat_mux_num = ARRAY_SIZE(mlxplat_default_mux_data);
@@ -8195,11 +8196,19 @@ static int __init mlxplat_dmi_ng400_matched(const struct dmi_system_id *dmi)
 		mlxplat_mux_data[i].n_values =
 				ARRAY_SIZE(mlxplat_msn21xx_channels);
 	}
-	mlxplat_hotplug = &mlxplat_mlxcpld_ext_data;
+
+	sku = dmi_get_system_info(DMI_PRODUCT_SKU);
+	if (!strcmp(sku, "HI184")) {
+		mlxplat_hotplug = &mlxplat_mlxcpld_dgx_ext_data;
+		mlxplat_regs_io = &mlxplat_dgx_ng_regs_io_data;
+	} else {
+		mlxplat_hotplug = &mlxplat_mlxcpld_ext_data;
+		mlxplat_regs_io = &mlxplat_default_ng_regs_io_data;
+	}
+
 	mlxplat_hotplug->deferred_nr =
 		mlxplat_msn21xx_channels[MLXPLAT_CPLD_GRP_CHNL_NUM - 1];
 	mlxplat_led = &mlxplat_default_ng_led_data;
-	mlxplat_regs_io = &mlxplat_default_ng_regs_io_data;
 	mlxplat_fan = &mlxplat_default_fan_data;
 	for (i = 0; i < ARRAY_SIZE(mlxplat_mlxcpld_wd_set_type2); i++)
 		mlxplat_wd_data[i] = &mlxplat_mlxcpld_wd_set_type2[i];
