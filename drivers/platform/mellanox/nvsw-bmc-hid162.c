@@ -6965,6 +6965,19 @@ nvsw_bmc_hid162_completion_notify(void *handle, struct i2c_adapter *parent,
 	return 0;
 }
 
+static int nvsw_bmc_hid162_mux_access_grant(void *handle)
+{
+	struct nvsw_core *nvsw_core = handle;
+	u32 regval;
+	int err;
+
+	err = regmap_read(nvsw_core->regmap, NVSW_REG_GP1_OFFSET, &regval);
+	if (err)
+		return err;
+
+	return regval & NVSW_MASTER_MASK;
+}
+
 static int nvsw_bmc_hid162_platform_data_init(struct nvsw_core *nvsw_core)
 {
 	int i;
@@ -6976,6 +6989,7 @@ static int nvsw_bmc_hid162_platform_data_init(struct nvsw_core *nvsw_core)
 		mux_data[i] = &nvsw_bmc_hid162_mux_data[i];
 		mux_data[i]->handle = nvsw_core;
 		mux_data[i]->completion_notify = nvsw_bmc_hid162_completion_notify;
+		mux_data[i]->mux_access_grant = nvsw_bmc_hid162_mux_access_grant;
 		mux_brdinfo[i] = &nvsw_bmc_hid162_mux_brdinfo;
 		mux_brdinfo[i]->platform_data = mux_data[i];
 	}
@@ -7002,6 +7016,7 @@ static int nvsw_bmc_hid176_platform_data_init(struct nvsw_core *nvsw_core)
 		mux_data[i] = &nvsw_bmc_hid176_mux_data[i];
 		mux_data[i]->handle = nvsw_core;
 		mux_data[i]->completion_notify = nvsw_bmc_hid162_completion_notify;
+		mux_data[i]->mux_access_grant = nvsw_bmc_hid162_mux_access_grant;
 		mux_brdinfo[i] = &nvsw_bmc_hid162_mux_brdinfo;
 		mux_brdinfo[i]->platform_data = mux_data[i];
 	}
@@ -7027,6 +7042,7 @@ static int nvsw_bmc_hid177_platform_data_init(struct nvsw_core *nvsw_core)
 		mux_data[i] = &nvsw_bmc_hid176_mux_data[i];
 		mux_data[i]->handle = nvsw_core;
 		mux_data[i]->completion_notify = nvsw_bmc_hid162_completion_notify;
+		mux_data[i]->mux_access_grant = nvsw_bmc_hid162_mux_access_grant;
 		mux_brdinfo[i] = &nvsw_bmc_hid162_mux_brdinfo;
 		mux_brdinfo[i]->platform_data = mux_data[i];
 	}
@@ -7052,6 +7068,7 @@ static int nvsw_bmc_hid180_platform_data_init(struct nvsw_core *nvsw_core)
 		mux_data[i] = &nvsw_bmc_hid180_mux_data[i];
 		mux_data[i]->handle = nvsw_core;
 		mux_data[i]->completion_notify = nvsw_bmc_hid162_completion_notify;
+		mux_data[i]->mux_access_grant = nvsw_bmc_hid162_mux_access_grant;
 		mux_brdinfo[i] = &nvsw_bmc_hid162_mux_brdinfo;
 		mux_brdinfo[i]->platform_data = mux_data[i];
 	}
@@ -7077,9 +7094,19 @@ static int nvsw_bmc_hid181_platform_data_init(struct nvsw_core *nvsw_core)
 		mux_data[i] = &nvsw_bmc_hid181_mux_data[i];
 		mux_data[i]->handle = nvsw_core;
 		mux_data[i]->completion_notify = nvsw_bmc_hid162_completion_notify;
+		mux_data[i]->mux_access_grant = nvsw_bmc_hid162_mux_access_grant;
 		mux_brdinfo[i] = &nvsw_bmc_hid162_mux_brdinfo;
 		mux_brdinfo[i]->platform_data = mux_data[i];
 	}
+
+	/*
+	 *  Mux access locking is required for NVSW_REG_MUX1.
+	 *  NVSW_REG_MUX2 CPLD reg, which controls the leak detector A2Ds,
+	 *  is accessed also when CPU controls the I2C muxing.
+	 *  Therefore, we only set mux_access_grant for the second cell in
+	 *  the i2c_mux_regmap_platform_data array.
+	 */
+	mux_data[0]->mux_access_grant = nvsw_bmc_hid162_mux_access_grant;
 
 	nvsw_core->regio_data = &nvsw_bmc_hid181_regio;
 	nvsw_core->led_data = &nvsw_bmc_hid177_led;
@@ -7105,6 +7132,15 @@ static int nvsw_bmc_hid189_platform_data_init(struct nvsw_core *nvsw_core)
 		mux_brdinfo[i] = &nvsw_bmc_hid162_mux_brdinfo;
 		mux_brdinfo[i]->platform_data = mux_data[i];
 	}
+
+	/*
+	 *  Mux access locking is required for NVSW_REG_MUX1.
+	 *  NVSW_REG_MUX2 CPLD reg, which controls the leak detector A2Ds,
+	 *  is accessed also when CPU controls the I2C muxing.
+	 *  Therefore, we only set mux_access_grant for the second cell in
+	 *  the i2c_mux_regmap_platform_data array.
+	 */
+	mux_data[0]->mux_access_grant = nvsw_bmc_hid162_mux_access_grant;
 
 	nvsw_core->regio_data = &nvsw_bmc_hid193_regio; /* hid189 uses info from 193 */
 	nvsw_core->led_data = &nvsw_bmc_hid177_led;
@@ -7155,6 +7191,15 @@ static int nvsw_bmc_hid193_platform_data_init(struct nvsw_core *nvsw_core)
 		mux_brdinfo[i] = &nvsw_bmc_hid162_mux_brdinfo;
 		mux_brdinfo[i]->platform_data = mux_data[i];
 	}
+
+	/*
+	 *  Mux access locking is required for NVSW_REG_MUX1.
+	 *  NVSW_REG_MUX2 CPLD reg, which controls the leak detector A2Ds,
+	 *  is accessed also when CPU controls the I2C muxing.
+	 *  Therefore, we only set mux_access_grant for the second cell in
+	 *  the i2c_mux_regmap_platform_data array.
+	 */
+	mux_data[0]->mux_access_grant = nvsw_bmc_hid162_mux_access_grant;
 
 	nvsw_core->regio_data = &nvsw_bmc_hid193_regio;
 	nvsw_core->led_data = &nvsw_bmc_hid177_led;

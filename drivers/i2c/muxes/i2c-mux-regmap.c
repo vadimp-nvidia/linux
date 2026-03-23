@@ -30,6 +30,12 @@ static int i2c_mux_regmap_select_chan(struct i2c_mux_core *muxc, u32 chan)
 	struct i2c_mux_regmap *mux = i2c_mux_priv(muxc);
 	int err = 0;
 
+	if (mux->pdata.mux_access_grant) {
+		err = mux->pdata.mux_access_grant(mux->pdata.handle);
+		if (err <= 0)
+			return err;
+	}
+
 	/* Only select the channel if its different from the last channel */
 	if (mux->last_val != chan) {
 		err = regmap_write(mux->pdata.regmap, mux->pdata.sel_reg_addr, chan);
@@ -42,6 +48,13 @@ static int i2c_mux_regmap_select_chan(struct i2c_mux_core *muxc, u32 chan)
 static int i2c_mux_regmap_deselect(struct i2c_mux_core *muxc, u32 chan)
 {
 	struct i2c_mux_regmap *mux = i2c_mux_priv(muxc);
+	int err;
+
+	if (mux->pdata.mux_access_grant) {
+		err = mux->pdata.mux_access_grant(mux->pdata.handle);
+		if (err <= 0)
+			return err;
+	}
 
 	/* Deselect active channel */
 	mux->last_val = -1;

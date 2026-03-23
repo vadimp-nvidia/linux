@@ -18,6 +18,7 @@
  * @reg_size: register size in bytes
  * @handle: handle to be passed by callback
  * @completion_notify: callback to notify when all the adapters are created
+ * @mux_access_grant: callback to validate if mux access is granted
  */
 struct i2c_mux_regmap_platform_data {
 	void *regmap;
@@ -29,6 +30,7 @@ struct i2c_mux_regmap_platform_data {
 	void *handle;
 	int (*completion_notify)(void *handle, struct i2c_adapter *parent,
 				 struct i2c_adapter *adapters[]);
+	int (*mux_access_grant)(void *handle);
 };
 
 #endif	/* __LINUX_PLATFORM_DATA_I2C_MUX_REGMAP_H */
