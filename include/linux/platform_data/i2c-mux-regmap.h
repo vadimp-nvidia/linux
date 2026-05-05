@@ -17,7 +17,9 @@
  * @sel_reg_addr - mux select register offset in CPLD space
  * @reg_size: register size in bytes
  * @handle: handle to be passed by callback
- * @completion_notify: callback to notify when all the adapters are created
+ * @completion_notify: callback to notify when all the adapters are created.
+ *	May also be invoked once with @adapters NULL if probe fails after the
+ *	parent adapter exists, so waiters can unblock.
  */
 struct i2c_mux_regmap_platform_data {
 	void *regmap;
