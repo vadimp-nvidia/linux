@@ -18,6 +18,9 @@
 #include <linux/platform_data/mlxreg.h>
 #include <linux/reboot.h>
 #include <linux/regmap.h>
+#include <linux/completion.h>
+#include <linux/jiffies.h>
+#include <linux/spinlock.h>
 
 #define MLX_PLAT_DEVICE_NAME		"mlxplat"
 
@@ -387,7 +390,15 @@
  * @regmap: device register map
  * @hotplug_resources: system hotplug resources
  * @hotplug_resources_size: size of system hotplug resources
- * @hi2c_main_init_status: init status of I2C main bus
+ * @i2c_main_init_status: init status of I2C main bus
+ * @mux_added: mux segments that have completed i2c-mux-reg probe (completion_notify)
+ * @mux_notify_lock: serializes mux_added while counting mux completion callbacks
+ * @mux_platdevs_done: signaled when deferred mlxplat_platdevs_init() has finished
+ * @mux_platdevs_err: result of mlxplat_platdevs_init() from completion_notify;
+ *	updated with WRITE_ONCE where the last notifier runs platdevs_init
+ *	outside mux_notify_lock
+ * @mux_abandon: mux topology is being torn down; last notifier skips platdevs_init
+ * @mux_post_init_claimed: platdevs_init is running (topology path may join on timeout)
  * @irq_fpga: FPGA IRQ number
  */
 struct mlxplat_priv {
@@ -403,6 +414,12 @@ struct mlxplat_priv {
 	struct resource *hotplug_resources;
 	unsigned int hotplug_resources_size;
 	u8 i2c_main_init_status;
+	int mux_added;
+	spinlock_t mux_notify_lock;
+	struct completion mux_platdevs_done;
+	int mux_platdevs_err;
+	bool mux_abandon;
+	bool mux_post_init_claimed;
 	int irq_fpga;
 };
 
@@ -7937,16 +7954,64 @@ static void mlxplat_platdevs_exit(struct mlxplat_priv *priv)
 }
 
 static int
-mlxplat_i2c_mux_complition_notify(void *handle, struct i2c_adapter *parent,
-				  struct i2c_adapter *adapters[])
+mlxplat_i2c_mux_complition_notify(void *handle, struct i2c_adapter *parent __maybe_unused,
+				  struct i2c_adapter *adapters[] __maybe_unused)
 {
 	struct mlxplat_priv *priv = handle;
+	bool run_platdevs_init = false;
+	bool need_complete = false;
+	unsigned long flags;
+	int ret = 0;
 
-	return mlxplat_platdevs_init(priv);
+	/*
+	 * i2c-mux-reg invokes this with @adapters NULL if this mux probe failed
+	 * after mlx-platform began waiting (so mux_added still reaches mux_num).
+	 */
+	if (!adapters) {
+		bool last;
+
+		spin_lock_irqsave(&priv->mux_notify_lock, flags);
+		if (priv->mux_abandon) {
+			spin_unlock_irqrestore(&priv->mux_notify_lock, flags);
+			return -EIO;
+		}
+		if (!READ_ONCE(priv->mux_platdevs_err))
+			WRITE_ONCE(priv->mux_platdevs_err, -EIO);
+		last = (++priv->mux_added == mlxplat_mux_num);
+		spin_unlock_irqrestore(&priv->mux_notify_lock, flags);
+		if (last)
+			complete(&priv->mux_platdevs_done);
+		return -EIO;
+	}
+
+	spin_lock_irqsave(&priv->mux_notify_lock, flags);
+	if (++priv->mux_added == mlxplat_mux_num) {
+		if (priv->mux_abandon || READ_ONCE(priv->mux_platdevs_err)) {
+			need_complete = true;
+		} else {
+			priv->mux_post_init_claimed = true;
+			run_platdevs_init = true;
+		}
+	}
+	spin_unlock_irqrestore(&priv->mux_notify_lock, flags);
+
+	if (run_platdevs_init) {
+		ret = mlxplat_platdevs_init(priv);
+		WRITE_ONCE(priv->mux_platdevs_err, ret);
+		spin_lock_irqsave(&priv->mux_notify_lock, flags);
+		priv->mux_post_init_claimed = false;
+		spin_unlock_irqrestore(&priv->mux_notify_lock, flags);
+		complete(&priv->mux_platdevs_done);
+	} else if (need_complete) {
+		complete(&priv->mux_platdevs_done);
+	}
+
+	return ret;
 }
 
 static int mlxplat_i2c_mux_topology_init(struct mlxplat_priv *priv)
 {
+	unsigned long flags;
 	int i, err;
 
 	if (!priv->pdev_i2c) {
@@ -7955,7 +8020,26 @@ static int mlxplat_i2c_mux_topology_init(struct mlxplat_priv *priv)
 	}
 
 	priv->i2c_main_init_status = MLXPLAT_I2C_MAIN_BUS_HANDLE_CREATED;
+	if (mlxplat_mux_num && !mlxplat_mux_data) {
+		err = -EINVAL;
+		return err;
+	}
+
+	spin_lock_irqsave(&priv->mux_notify_lock, flags);
+	priv->mux_added = 0;
+	priv->mux_abandon = false;
+	priv->mux_post_init_claimed = false;
+	spin_unlock_irqrestore(&priv->mux_notify_lock, flags);
+
+	if (!mlxplat_mux_num)
+		return mlxplat_platdevs_init(priv);
+
+	reinit_completion(&priv->mux_platdevs_done);
+	WRITE_ONCE(priv->mux_platdevs_err, 0);
+
 	for (i = 0; i < mlxplat_mux_num; i++) {
+		mlxplat_mux_data[i].handle = priv;
+		mlxplat_mux_data[i].completion_notify = mlxplat_i2c_mux_complition_notify;
 		priv->pdev_mux[i] = platform_device_register_resndata(&priv->pdev_i2c->dev,
 								      "i2c-mux-reg", i, NULL, 0,
 								      &mlxplat_mux_data[i],
@@ -7966,11 +8050,45 @@ static int mlxplat_i2c_mux_topology_init(struct mlxplat_priv *priv)
 		}
 	}
 
-	return mlxplat_i2c_mux_complition_notify(priv, NULL, NULL);
+	/*
+	 * Block until every mux completion_notify has run, including
+	 * mlxplat_platdevs_init() from the last segment. Probe must not return before
+	 * dependent platform devices exist; 120s bounds stuck CPLD/firmware mux
+	 * bring-up (typical switch mux probe completes in seconds).
+	 */
+	if (!wait_for_completion_timeout(&priv->mux_platdevs_done,
+					 msecs_to_jiffies(120000))) {
+		spin_lock_irqsave(&priv->mux_notify_lock, flags);
+		if (priv->mux_post_init_claimed) {
+			spin_unlock_irqrestore(&priv->mux_notify_lock, flags);
+			wait_for_completion(&priv->mux_platdevs_done);
+			err = READ_ONCE(priv->mux_platdevs_err);
+			if (err)
+				goto fail_platform_mux_register;
+		} else {
+			if (!READ_ONCE(priv->mux_platdevs_err))
+				WRITE_ONCE(priv->mux_platdevs_err, -ETIMEDOUT);
+			spin_unlock_irqrestore(&priv->mux_notify_lock, flags);
+			dev_err(&priv->pdev_i2c->dev,
+				"timeout waiting for I2C mux probe\n");
+			err = -ETIMEDOUT;
+			goto fail_platform_mux_register;
+		}
+	}
+	err = READ_ONCE(priv->mux_platdevs_err);
+	if (err)
+		goto fail_platform_mux_register;
+	return 0;
 
 fail_platform_mux_register:
+	spin_lock_irqsave(&priv->mux_notify_lock, flags);
+	priv->mux_abandon = true;
+	spin_unlock_irqrestore(&priv->mux_notify_lock, flags);
 	while (i--)
 		platform_device_unregister(priv->pdev_mux[i]);
+	spin_lock_irqsave(&priv->mux_notify_lock, flags);
+	priv->mux_added = 0;
+	spin_unlock_irqrestore(&priv->mux_notify_lock, flags);
 	return err;
 }
 
@@ -8071,6 +8189,8 @@ static int mlxplat_probe(struct platform_device *pdev)
 	priv->hotplug_resources = hotplug_resources;
 	priv->hotplug_resources_size = hotplug_resources_size;
 	priv->irq_fpga = irq_fpga;
+	spin_lock_init(&priv->mux_notify_lock);
+	init_completion(&priv->mux_platdevs_done);
 
 	if (!mlxplat_regmap_config)
 		mlxplat_regmap_config = &mlxplat_mlxcpld_regmap_config;
