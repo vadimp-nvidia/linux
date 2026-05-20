@@ -153,26 +153,53 @@ static int i2c_mux_reg_probe_dt(struct regmux *mux,
 }
 #endif
 
+static void i2c_mux_reg_notify_probe_abandon(struct platform_device *pdev,
+					     struct regmux *mux,
+					     struct i2c_mux_core *muxc,
+					     struct i2c_adapter *parent,
+					     int err, bool user_notify_called)
+{
+	const struct i2c_mux_reg_platform_data *pd;
+
+	if (user_notify_called || err == -EPROBE_DEFER)
+		return;
+	pd = mux ? &mux->data : dev_get_platdata(&pdev->dev);
+	if (!pd || !pd->completion_notify || !pd->handle)
+		return;
+	pd->completion_notify(pd->handle, muxc ? muxc->parent : parent, NULL);
+}
+
 static int i2c_mux_reg_probe(struct platform_device *pdev)
 {
-	struct i2c_mux_core *muxc;
+	struct i2c_mux_core *muxc = NULL;
 	struct regmux *mux;
 	struct i2c_adapter *parent;
 	struct resource *res;
+	bool user_notify_called = false;
 	int i, ret, nr;
 
 	mux = devm_kzalloc(&pdev->dev, sizeof(*mux), GFP_KERNEL);
-	if (!mux)
+	if (!mux) {
+		const struct i2c_mux_reg_platform_data *pd0 = dev_get_platdata(&pdev->dev);
+
+		if (pd0 && pd0->completion_notify && pd0->handle)
+			pd0->completion_notify(pd0->handle, NULL, NULL);
 		return -ENOMEM;
+	}
 
 	if (dev_get_platdata(&pdev->dev)) {
 		memcpy(&mux->data, dev_get_platdata(&pdev->dev),
 			sizeof(mux->data));
 	} else {
 		ret = i2c_mux_reg_probe_dt(mux, pdev);
-		if (ret < 0)
-			return dev_err_probe(&pdev->dev, ret,
-					     "Error parsing device tree");
+		if (ret < 0) {
+			ret = dev_err_probe(&pdev->dev, ret,
+					    "Error parsing device tree");
+			if (ret != -EPROBE_DEFER)
+				i2c_mux_reg_notify_probe_abandon(pdev, mux, NULL,
+								 NULL, ret, false);
+			return ret;
+		}
 	}
 
 	parent = i2c_get_adapter(mux->data.parent);
@@ -218,14 +245,28 @@ static int i2c_mux_reg_probe(struct platform_device *pdev)
 			goto err_del_mux_adapters;
 	}
 
+	if (mux->data.completion_notify) {
+		ret = mux->data.completion_notify(mux->data.handle, muxc->parent,
+						  muxc->adapter);
+		user_notify_called = true;
+		if (ret)
+			goto err_del_mux_adapters;
+	}
+
 	dev_dbg(&pdev->dev, "%d port mux on %s adapter\n",
 		 mux->data.n_values, muxc->parent->name);
 
 	return 0;
 
 err_del_mux_adapters:
+	i2c_mux_reg_notify_probe_abandon(pdev, mux, muxc, parent, ret,
+					 user_notify_called);
 	i2c_mux_del_adapters(muxc);
+	goto put_parent;
 err_put_parent:
+	i2c_mux_reg_notify_probe_abandon(pdev, mux, muxc, parent, ret,
+					 user_notify_called);
+put_parent:
 	i2c_put_adapter(parent);
 
 	return ret;
