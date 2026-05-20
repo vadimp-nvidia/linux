@@ -22,6 +22,13 @@
  * @idle_in_use: indicate if idle value is in use
  * @reg: Virtual address of the register to switch channel
  * @reg_size: register size in bytes
+ * @handle: Opaque pointer passed to @completion_notify as its first argument
+ * @completion_notify: Optional; called after every child adapter exists.
+ *	Return 0 on success or a negative errno; non-zero causes probe to fail
+ *	and the mux to be torn down (same contract as i2c-mux-regmap).
+ *	If probe fails before a successful call with a valid @adapters array,
+ *	the driver may invoke this once with @adapters NULL (and @parent NULL
+ *	if the parent adapter was never obtained) so waiters can unblock.
  */
 struct i2c_mux_reg_platform_data {
 	int parent;
@@ -35,6 +42,9 @@ struct i2c_mux_reg_platform_data {
 	bool idle_in_use;
 	void __iomem *reg;
 	resource_size_t reg_size;
+	void *handle;
+	int (*completion_notify)(void *handle, struct i2c_adapter *parent,
+				 struct i2c_adapter *adapters[]);
 };
 
 #endif	/* __LINUX_PLATFORM_DATA_I2C_MUX_REG_H */
