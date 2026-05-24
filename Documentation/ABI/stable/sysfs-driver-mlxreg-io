@@ -813,3 +813,217 @@ Description:	These files show status of Unified Fabric Manager upgrade.
 		state. 0 - means upgrade is done, 1 - otherwise.
 
 		The file is read only.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld6_version
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld7_version
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld8_version
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld9_version
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld10_version
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld6_pn
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld7_pn
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld8_pn
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld9_pn
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld10_pn
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld6_version_min
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld7_version_min
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld8_version_min
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld9_version_min
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpld10_version_min
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	These files show with which CPLD part numbers, major versions
+		and minor versions have been burned on the 6-th through 10-th CPLD
+		devices equipped on a system.
+
+		The files are read only.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/bios_status
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/bios_start_retry
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	These files represent BIOS boot status:
+
+		bios_status: current BIOS boot phase encoded in CPLD status
+		register bits.
+		bios_start_retry: number of BIOS start retries performed by
+		hardware.
+
+		The files are read only.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpu_mctp_ready
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpu_shutdown_req
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cpu_power_off_ready
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/bmc_to_cpu_ctrl
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/graceful_pwr_off
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	These files provide host CPU and BMC interaction control:
+
+		cpu_mctp_ready: when written 1, indicates that host CPU MCTP stack
+		is ready for BMC communication.
+		cpu_shutdown_req: when set 1, indicates that host CPU shutdown
+		has been requested by hardware.
+		cpu_power_off_ready: when written 1, indicates that host CPU is
+		ready for power off sequence.
+		bmc_to_cpu_ctrl: ownership of control signals between BMC and
+		host CPU. 0 - host control, 1 - BMC control.
+		graceful_pwr_off: when written 1, initiates graceful system
+		power off sequence.
+
+		cpu_shutdown_req is read only. The other files are read/write.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/aux_pwr_cycle
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	This file allows asserting auxiliary power domain cycling.
+		When aux_pwr_cycle is written 1, auxiliary power domain will go
+		down and after short period up.
+
+		The file is write only.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/uart_sel
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	This file selects the active UART routing between available
+		system UART sources.
+
+		The file is read/write.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/power_button_evt
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/power_button_mask
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/amb_sens
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	These files are related to system power button and ambient
+		temperature sensing:
+
+		power_button_evt: power button event status. Writing 1 clears
+		the latched event.
+		power_button_mask: power button event interrupt mask.
+		amb_sens: ambient temperature sensor alert status.
+
+		amb_sens is read only. The other files are read/write.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/hotswap_alert
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cartridge1
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cartridge2
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cartridge3
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cartridge4
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/cartridge_status_clear
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	These files provide hot-swap and cartridge FRU status:
+
+		hotswap_alert: hot-swap controller alert status.
+		cartridge1..cartridge4: presence or status of cartridge FRU
+		slots.
+		cartridge_status_clear: writing 1 clears latched cartridge
+		status events.
+
+		hotswap_alert and cartridge1..cartridge4 are read only.
+		cartridge_status_clear is read/write.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/leakage1
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/leakage2
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/leakage3
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/leakage4
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/leakage5
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/leakage_status_clear
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	These files provide liquid cooling leakage detection status:
+
+		leakage1..leakage5: leakage sensor status, 1 indicates leakage
+		detection on the related sensor.
+		leakage_status_clear: writing 1 clears latched leakage events.
+
+		leakage1..leakage5 are read only. leakage_status_clear is
+		read/write.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/asic3_health
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/asic4_health
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	These files show 3-rd and 4-th ASIC health status. The possible
+		values are: 0 - health failed, 2 - health OK, 3 - ASIC in booting
+		state.
+
+		The files are read only.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/asic1_reset
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/asic3_reset
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/asic4_reset
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/sgmii_phy_reset
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	These files allow reset of individual ASICs and SGMII PHY by
+		writing 1.
+
+		The files are read/write.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/asic1_pg_fail
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/asic2_pg_fail
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/asic3_pg_fail
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/asic4_pg_fail
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	These files show ASIC Power Good status for each ASIC.
+		Value 1 in file means ASIC Power Good failed, 0 - otherwise.
+
+		The files are read only.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/reset_aux_pwr_or_fu
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/reset_aux_pwr_or_reload
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/reset_pwr_button_or_leak_con
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/reset_comex_power
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/reset_cpu_thermal
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/reset_main_51v
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/reset_mgmt_pwr
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	These files show the system reset cause, as following:
+		auxiliary power outage or field upgrade, auxiliary power outage
+		or power reload, power button press or liquid cooling connector
+		event, COMEX power related reset, CPU thermal shutdown, main
+		51V power domain failure, management power domain failure.
+		Value 1 in file means this is reset cause, 0 - otherwise.
+		Only one of the above causes could be 1 at the same time,
+		representing only last reset cause.
+
+		The files are read only.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/port80
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/sgmii_phy
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	These files expose platform diagnostic information:
+
+		port80: POST code value latched by platform hardware.
+		sgmii_phy: SGMII PHY related status.
+
+		The files are read only.
+
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/pdb1_pwr_status
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/pdb2_pwr_status
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/pdb3_pwr_status
+What:		/sys/devices/platform/mlxplat/mlxreg-io/hwmon/hwmon*/pdb4_pwr_status
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Felix Radensky <fradensky@nvidia.com>
+Description:	These files show power distribution board (PDB) DC OK status
+		for each PDB slot. Value 1 indicates power good, 0 - otherwise.
+
+		The files are read only.
