@@ -1027,3 +1027,334 @@ Description:	These files show power distribution board (PDB) DC OK status
 		for each PDB slot. Value 1 indicates power good, 0 - otherwise.
 
 		The files are read only.
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/aux_pwr_cycle
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	Nvidia switch BMC (nvsw-bmc-hid162) exposes mlxreg-io attributes on an
+		I2C-attached CPLD/FPGA. The sysfs path prefix is:
+
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/
+
+		Each '*' stands for one directory level (SoC, bus, I2C adapter, client
+		address, etc.) and varies by platform device-tree layout. hwmon* matches
+		hwmon0, hwmon1, and so on. The following entries document attributes added
+		for BMC platforms using this prefix.
+
+		The file is read/write.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bmc_tpm_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld_phy1_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld_phy_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/erot_asic1_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/erot_asic2_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/erot_asic3_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/main_brd_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/nic_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_cpu
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_erot
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_from_carrier
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_from_carrier_brd
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_from_cpld
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_from_erot
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_from_main_brd
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_from_sw_cmd
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_main_48v
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_plt_pwr_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_pwr
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_pwr_button
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_swb_pwr_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_thermal
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files show system reset cause status from CPLD reset-cause registers. Value 1 indicates the corresponding reset cause is active, 0 - otherwise.
+
+		File access mode varies; see individual register definitions in the driver.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asics_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/erot_cpu_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/i219_pe_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/ignore_next_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/main_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/mcu1_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/mcu2_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/platform_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/ser_irq_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sys_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/tpm_reset
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files trigger or control reset actions through CPLD registers. Write 1 to assert the corresponding reset where applicable.
+
+		The files are read/write.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/erot_asic1_recovery
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/erot_asic2_recovery
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/erot_asic3_recovery
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/erot_cpu_recovery
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/mcu1_recovery
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/mcu2_recovery
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files control device recovery sequences (EROT, MCU). Toggle by writing 1 then 0 where applicable.
+
+		The files are read/write.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/smb_erot
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files show External Root of Trust (EROT) related status.
+
+		The files are read only.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic1_perst
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic1_pg
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic2_perst
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic2_pg
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic3_perst
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic3_pg
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic4_perst
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic4_pg
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asics_pg
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asics_pg_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bmc_perst_en
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files show ASIC or platform power-good, PERST, or aggregate PG status.
+
+		File access mode varies; see individual register definitions in the driver.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic1_clk_brd1_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic1_clk_brd2_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic2_clk_brd1_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic2_clk_brd2_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic3_clk_brd1_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic3_clk_brd2_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic4_clk_brd1_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic4_clk_brd2_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic_clk_brd_hw_id
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/clk_brd_program
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sb_asic1_clk_brd_ci_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sb_asic1_clk_brd_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sb_asic2_clk_brd_ci_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sb_asic2_clk_brd_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sb_asic3_clk_brd_ci_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sb_asic3_clk_brd_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sb_asic4_clk_brd_ci_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sb_asic4_clk_brd_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sb_clk_brd_asic_ci_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sb_clk_brd_asic_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sb_clk_brd_prog_en
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files relate to clock-board programming, boot failure status, and ASIC clock-board control.
+
+		File access mode varies; see individual register definitions in the driver.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bmc_monitor
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bmc_req_conf_flash_updt
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bmc_reset_reg
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bmc_shutdown_unlock
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpu_int_enable
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpu_req_conf_flash_updt
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpu_spi_ctrl
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpu_tps_upgrade
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files provide BMC and host CPU interaction, monitoring, and control signals.
+
+		File access mode varies; see individual register definitions in the driver.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/graceful_power_off
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/pwr_button_halt
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files provide power, reset, and shutdown control through CPLD registers.
+
+		The files are read/write.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bios_image_invert
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bios_status_ro
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/non_active_bios_select
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files expose BIOS-related status and image selection control.
+
+		File access mode varies; see individual register definitions in the driver.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld1_dbg_led
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld2_dbg_led
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld3_dbg_led
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld4_dbg_led
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files control CPLD debug LED outputs.
+
+		The files are read/write.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/gp_bmc_presnt
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/gp_bmc_tpm_brd_prsnt
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/gp_cpld_rtc_clr
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/gp_io_brd_prsnt
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/gp_spd_a_wp
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/gp_spd_b_wp
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/gp_swb_mgmt_present
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/gp_tpm_brd_prsnt
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/gp_vdd_spd_dis
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/gpio_cpld_fu
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files expose general-purpose CPLD GPIO register bits for board control and status.
+
+		File access mode varies; see individual register definitions in the driver.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/leak_con
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/leakage_conn_en
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files relate to liquid cooling leak detection enablement and status.
+
+		File access mode varies; see individual register definitions in the driver.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/tpm_present
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files expose TPM presence status.
+
+		The files are read only.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/avlbl_reg_new_format
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/b2b_vpd
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/comex_tps
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/conf_flash_updt_done
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld_phy2_rst
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/current_temp_ro
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/fan_present
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/geo_addr
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/global_wp_disable_req
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/i2c_freq
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/main_12v_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/me_reboot
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/psu_qty
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/serirq_mode
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/smb2i2c
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/smbus_vpd
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sml_connection
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/stby_pwr_en_unmask
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/switch_ic_qty
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/transport_status
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/uart_baud_rate
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/wd_type
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These files expose additional BMC-accessible CPLD/FPGA register bits for platform monitoring and control.
+
+		File access mode varies; see individual register definitions in the driver.
+
+What:		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic1_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic2_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic3_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic4_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/asic_pg_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/aux_pwr_cycle
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bios_active_image
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bios_start_retry
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bios_status
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bios_upgrade_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/bmc_to_cpu_ctrl
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/clk_brd1_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/clk_brd2_boot_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/clk_brd_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/comm_chnl_ready
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/config1
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/config2
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/config3
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld10_pn
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld10_version
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld10_version_min
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld1_pn
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld1_version
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld1_version_min
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld2_pn
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld2_version
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld2_version_min
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld3_pn
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld3_version
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld3_version_min
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld4_pn
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld4_version
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld4_version_min
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld5_pn
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld5_version
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld5_version_min
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld6_pn
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld6_version
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld6_version_min
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld7_pn
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld7_version
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld7_version_min
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld8_pn
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld8_version
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld8_version_min
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld9_pn
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld9_version
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpld9_version_min
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpu_mctp_ready
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpu_power_off_ready
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/cpu_shutdown_req
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/fan_dir
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/jtag_cap
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/jtag_enable
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/pcie_asic_reset_dis
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/port80
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/pwr_converter_prog_en
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/pwr_cycle
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/pwr_down
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_asic_thermal
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_aux_pwr_or_fu
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_aux_pwr_or_reload
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_comex_power
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_comex_pwr_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_comex_thermal
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_cpu_thermal
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_from_comex
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_long_pb
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_main_51v
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_mgmt_pwr
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_platform
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_pwr_button_or_leak_con
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_pwr_converter_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_short_pb
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_soc
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_sw_pwr_off
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_swb_dc_dc_pwr_fail
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_swb_wd
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/reset_system
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/sgmii_phy_reset
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/shutdown_unlock
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/spi_chnl_select
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/uart_sel
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/ufm_version
+		/sys/devices/platform/*/*/*/*/*/mlxreg-io/hwmon/hwmon*/vpd_wp
+Date:		June 2026
+KernelVersion:	7.2
+Contact:	Aaron Komisar <akomisar@nvidia.com>
+Description:	These mlxreg-io attributes are also available on Nvidia switch BMC platforms under the sysfs path prefix above. Functionality matches the mlxplat path entries documented earlier in this file for the same attribute names.
+
+		File access mode varies; see individual register definitions in the driver.
+
+
