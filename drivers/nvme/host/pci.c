@@ -1505,11 +1505,34 @@ static void nvme_suspend_io_queues(struct nvme_dev *dev)
 static void nvme_disable_admin_queue(struct nvme_dev *dev, bool shutdown)
 {
 	struct nvme_queue *nvmeq = &dev->queues[0];
+	int result;
 
 	if (shutdown)
-		nvme_shutdown_ctrl(&dev->ctrl);
+		result = nvme_shutdown_ctrl(&dev->ctrl);
 	else
-		nvme_disable_ctrl(&dev->ctrl);
+		result = nvme_disable_ctrl(&dev->ctrl);
+
+	if (result < 0) {
+		struct pci_dev *pdev = to_pci_dev(dev->dev);
+
+		/*
+		 * The NVMe Controller did not respond to a normal
+		 * disable or shutdown.  Use the lower level and bigger
+		 * hammer PCIe Function Level Reset to bring the device
+		 * back to its initial state so any subsequent reset
+		 * work has a chance to succeed.
+		 */
+		result = pcie_reset_flr(pdev, false);
+		if (result == 0) {
+			pci_restore_state(pdev);
+			dev_info(dev->ctrl.device,
+				 "controller %s completed after pcie flr\n",
+				 shutdown ? "shutdown" : "disable");
+		} else {
+			dev_warn(dev->ctrl.device,
+				 "pcie flr fallback failed (%d)\n", result);
+		}
+	}
 
 	nvme_poll_irqdisable(nvmeq);
 }
