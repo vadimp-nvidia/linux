@@ -374,6 +374,15 @@ properties:
           - national,lm85c
             # I2C ±0.33°C Accurate, 12-Bit + Sign Temperature Sensor and Thermal Window Comparator
           - national,lm92
+            # Nvidia BMC platform CPLD control
+          - nvidia,hid162
+          - nvidia,hid176
+          - nvidia,hid177
+          - nvidia,hid180
+          - nvidia,hid181
+          - nvidia,hid189
+          - nvidia,hid191
+          - nvidia,hid193
             # Nuvoton Temperature Sensor
           - nuvoton,w83773g
             # NXP ISP1301 USB transceiver
